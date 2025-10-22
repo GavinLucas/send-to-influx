@@ -1,0 +1,77 @@
+# Settings for the HueToInflux script
+
+# The default source to use if no source is specified on the command line
+default_source: "hue"
+
+# Hue bridge settings
+hue:
+  # The database to use
+  db: "hue_db"
+  # The hostname or IP address of the Hue bridge
+  host: "hue.example.com"
+  # Hue bridge username.  See https://developers.meethue.com/develop/get-started-2/
+  #   for instructions on how to generate this
+  user: "your_hue_user"
+  # Timeout for requests to the Hue bridge
+  timeout: 5
+  # Interval in seconds between data collection
+  interval: 300
+  # Temperature unit (C/F/K)
+  temperature_units: "C"
+  # Optional name mappings for custom naming
+  # If not specified, the name in the Hue settings is used
+  # Any spaces will be replaced with underscores
+  sensors:
+    "Hue ambient light sensor 1": "Room1_Light_Sensor"
+    "Hue ambient light sensor 2": "Room2_Light_Sensor"
+    "Hue temperature sensor 1": "Room1_Temperature_Sensor"
+    "Hue temperature sensor 2": "Room2_Temperature_Sensor"
+
+# General Myenergi settings
+myenergi:
+  # The URL to get the status of the Eddi device
+  eddi_url: "https://s18.myenergi.net/cgi-jstatus-E"
+  # The URL to get the status of the Zappi device
+  zappi_url: "https://s18.myenergi.net/cgi-jstatus-Z"
+  # The URL to get the status of the Harvi device
+  harvi_url: "https://s18.myenergi.net/cgi-jstatus-H"
+  # The URL to get the status of all devices
+  status_url: "https://s18.myenergi.net/cgi-jstatus-*"
+  # The URL to get the dayhour data for the Zappi device
+  dayhour_url: "https://s18.myenergi.net/cgi-jdayhour-Z"
+  # The API key for the Myenergi API
+  apikey: "your_api_key"
+  # Timeout for requests to the Myenergi API
+  timeout: 5
+
+# Zappi settings
+zappi:
+  # The database to use
+  db: "zappi_db"
+  # Interval in seconds between data collection
+  interval: 300
+  # The serial number of the Zappi device
+  serial: "your_zappi_serial"
+  # The fields to collect from the Zappi device
+  zappi_fields:
+    - "frq"
+    - "vol"
+    - "gen"
+    - "grd"
+    - "che"
+    - "sta"
+    - "wifiLink"
+    - "ethernetLink"
+    - "newAppAvailable"
+    - "newBootloaderAvailable"
+
+# InfluxDB settings
+influx:
+  # The URL of the InfluxDB server
+  url: "https://influx.example.com:8086"
+  # The username for the InfluxDB server
+  user: "your_influx_user"
+  # The password for the InfluxDB server
+  password: "your_influx_password"
+  # Timeout for requests to the InfluxDB server
+  timeout: 5

@@ -1,0 +1,32 @@
+name: 'Check inbound changes'
+permissions:
+  contents: read
+
+# Triggers
+on: [push, pull_request, workflow_dispatch]
+
+# Jobs
+jobs:
+
+  flake8-run:
+    # Runs flake8 as an alternative, faster(?) linter
+
+    runs-on: [ubuntu-latest]
+
+    name: Run flake8
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Run flake8
+        uses: py-actions/flake8@v2
+        with:
+          max-line-length: "120"
+          ignore: "E203"
+          exclude: .git,__pycache__,venv
+          plugins: "flake8-bugbear flake8-black"

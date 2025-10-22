@@ -1,0 +1,39 @@
+# Hidden files
+/.*
+!/.gitignore
+!/.github/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python Virtual Environment 
+/venv/
+/.venv/
+
+# Pytest
+/.pytest_cache/
+
+# Pycharm
+/.idea/
+/qodana.yaml
+
+# Sphinx
+/doc/
+_build/
+.buildinfo
+.doctrees/
+_sources/
+
+# OS
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+*~
+*.bak
+
+# Project
+/settings.json
+/settings.yml
