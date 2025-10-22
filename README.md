@@ -1,4 +1,4 @@
-HueToInflux
+send-to-influx
 ===========
 
 https://github.com/GavinLucas/send-to-influx
