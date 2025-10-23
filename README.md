@@ -6,9 +6,10 @@ https://github.com/GavinLucas/send-to-influx
 
 Script to take data from various APIs and post it to InfluxDB in order to view the data in Grafana.
 
+It currently supports Hue Bridges and also MyEnergi Zappi car chargers.
+
 Hue Bridge
 ----------
-It currently supports Hue Bridges and also MyEnergi Zappi car chargers.
 
 It will collect occupancy, temperature and light readings from Hue Motion Sensors, on/off state 
 of Smart Plugs and the brightness of lights, but could be modified to collect other data from the bridge.
