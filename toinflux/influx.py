@@ -23,13 +23,16 @@ class Settings:
         :return: None
         """
         try:
+            # Open the settings yamlfile converting to a dictionary
             with open(self.settings_file, encoding="utf8") as f:
                 self.toinflux = yaml.safe_load(f)
         except FileNotFoundError:
+            # If the settings file is not found, print an error message and exit
             print(f"{self.settings_file} not found.")
             print("Make sure you copy settings.yml.example to settings.yml and edit it.")
             sys.exit(1)
         except yaml.YAMLError as e:
+            # If the settings file is not valid yaml, print an error message and exit
             print(f"Error in settings.yml - {e}")
             sys.exit(1)
 
