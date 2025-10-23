@@ -80,6 +80,6 @@ myenergi.py - contains an intermediate level child class (MyEnergi) with common 
 
 So to add a new device, if it's for an existing manufacturer, e.g. adding support for a MyEnergi Eddi you can add a new sub-class to an existing file, otherwise add a new file with a class which is a child of DataHandler and exposes a get_data() method.
 
-Don't forget to add imports to general.py and \_\_init\_\_.py, update the README.md and also add any required settings to example_settings.yml
+Don't forget to add imports to general.py and \_\_init__.py, update the README.md and also add any required settings to example_settings.yml
 
 Enjoy!

@@ -28,7 +28,7 @@ class Settings:
         :return: None
         """
         try:
-            # Open the settings yamlfile converting to a dictionary
+            # Open the settings yaml file converting to a dictionary
             with open(self.settings_file, encoding="utf8") as f:
                 self.toinflux = yaml.safe_load(f)
         except FileNotFoundError:
