@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Script to get data from a variety of sources and send it to InfluxDB"""
 
+__author__ = "Gavin Lucas"
+__copyright__ = "Copyright (C) 2025 Gavin Lucas"
+__license__ = "MIT License"
+__version__ = "1.0"
+
 import sys
 import time
 import json

@@ -1,5 +1,10 @@
 """Parent class for data handlers to send data to InfluxDB"""
 
+__author__ = "Gavin Lucas"
+__copyright__ = "Copyright (C) 2025 Gavin Lucas"
+__license__ = "MIT License"
+__version__ = "1.0"
+
 # pylint: disable=too-few-public-methods
 import sys
 import os

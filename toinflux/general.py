@@ -1,5 +1,10 @@
 """General functions and classes for sending data to InfluxDB"""
 
+__author__ = "Gavin Lucas"
+__copyright__ = "Copyright (C) 2025 Gavin Lucas"
+__license__ = "MIT License"
+__version__ = "1.0"
+
 # pylint: disable=unused-import
 import sys
 import urllib3
