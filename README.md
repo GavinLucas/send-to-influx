@@ -62,3 +62,24 @@ Usage
 > &emsp; -p, --print           print the data rather than sending it to InfluxDB  
 > &emsp; -s, --source SOURCE   the source of the data to send to InfluxDB (hue,
 >                        zappi, etc.) - default is "hue"  
+
+Project Structure and How to Contribute
+---------------------------------------
+
+Most of the functionality is located in the 'toinflux' package.  This contains several modules each concerned with a different device type.
+
+Pretty much all of the code is in a hierarchy of parent and child classes:
+
+general.py - contains the function that returns an instance of the correct child class
+
+influx.py - contains the top level parent class (DataHandler) which implements the common method for uploading to influx - send_data()
+
+philipshue.py - contains a single child class (Hue) with all the functionality required to get data when calling the common method - get_data()
+
+myenergi.py - contains an intermediate level child class (MyEnergi) with common functions for retrieving data from the myenergi APIs.   This class in turn has a child class (Zappi) for using those methods to retrieve data specific to a Zappi.  It implements the common method - get_data()
+
+So to add a new device, if it's for an existing manufacturer, e.g. adding support for a MyEnergi Eddi you can add a new sub-class to an existing file, otherwise add a new file with a class which is a child of DataHandler and exposes a get_data() method.
+
+Don't forget to add imports to general.py and \_\_init__.py, update the README.md and also add any required settings to example_settings.yml
+
+Enjoy!

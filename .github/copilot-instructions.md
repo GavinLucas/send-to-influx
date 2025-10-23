@@ -51,13 +51,6 @@ YAML-based configuration supporting multiple data sources:
 - **Network Handling**: Proper timeout handling and connection failure management
 - **Validation**: Configuration validation before processing
 
-### Testing Requirements
-- **Framework**: pytest with mock support
-- **Coverage**: Unit tests for all functions with mocked external dependencies
-- **Fixtures**: Use pytest fixtures for common setup
-- **Scenarios**: Test both success and error conditions
-- **External Dependencies**: Mock Hue API, MyEnergi API, InfluxDB, HTTP requests
-
 ## Development Guidelines
 
 ### Adding New Data Sources
@@ -67,34 +60,7 @@ YAML-based configuration supporting multiple data sources:
    - `get_data()`: Return processed data as dictionary
    - `send_data(data)`: Send data to InfluxDB (inherited from base class)
 4. **Configuration**: Add corresponding section to `settings.yml`
-5. **Testing**: Create comprehensive unit tests
-6. **Documentation**: Update docstrings and comments
-
-### Data Source Implementation Pattern
-```python
-class NewSource(general.DataHandler):
-    """Child class of general.DataHandler for new data source"""
-    
-    def get_data(self):
-        """
-        Get and process data from the new source
-        
-        :return: Processed data dictionary
-        :rtype: dict
-        """
-        raw_data = self.get_data_from_api()
-        return self.parse_data(raw_data)
-    
-    def get_data_from_api(self):
-        """Get raw data from external API"""
-        # Implementation here
-        pass
-    
-    def parse_data(self, raw_data):
-        """Parse raw data into InfluxDB format"""
-        # Implementation here
-        pass
-```
+5. **Documentation**: Update docstrings and comments
 
 ### Configuration Schema
 Each data source should have its own section in `settings.yml`:
@@ -121,19 +87,6 @@ try:
 except requests.exceptions.RequestException as e:
     print(f"Error connecting to API - {e}")
     sys.exit(2)
-```
-
-### Testing Patterns
-```python
-def test_data_source_with_mock(monkeypatch):
-    """Test data source with mocked external API"""
-    def mock_api_call():
-        return {"field1": "value1", "field2": "value2"}
-    
-    monkeypatch.setattr(module, "external_api_call", mock_api_call)
-    handler = NewSource("newsource")
-    result = handler.get_data()
-    assert result == expected_result
 ```
 
 ## Current Data Sources
@@ -248,32 +201,21 @@ influx:
 2. **Processing**: Use `--print` mode to see processed data without sending to InfluxDB
 3. **Validation**: Check `settings.yml` syntax and values
 4. **Connectivity**: Verify network connectivity to APIs and InfluxDB
-5. **Testing**: Use pytest to isolate specific functionality
 
 ### Adding New Sensor Types
 1. **Identify**: Find sensor type in API response
 2. **Process**: Add processing logic in data source's `parse_data()` method
 3. **Convert**: Handle unit conversions if needed
-4. **Test**: Add test cases for new sensor type
-5. **Document**: Update configuration documentation
+4. **Document**: Update configuration documentation
 
 ### Modifying Data Format
 1. **Update**: Modify InfluxDB line protocol formatting in `send_data()` method
 2. **Compatibility**: Ensure backward compatibility with existing data
-3. **Test**: Update tests to reflect new format
-4. **Document**: Update configuration and usage documentation
-
-## Testing Strategy
-- **Unit Tests**: All functions with mocked dependencies
-- **Error Conditions**: Test network failures, invalid configurations, API errors
-- **Data Processing**: Test with various sensor types and data formats
-- **CLI**: Test argument parsing and signal handling
-- **Integration**: Test end-to-end data flow (with mocked external services)
+3. **Document**: Update configuration and usage documentation
 
 ## Development Workflow
 1. **Setup**: Copy `example_settings.yml` to `settings.yml` and configure
 2. **Development**: Use `--print` mode for testing without affecting InfluxDB
-3. **Testing**: Run `pytest` to ensure all tests pass
-4. **Linting**: Run `flake8` to check code style
-5. **Formatting**: Run `black` to format code
-6. **Integration**: Test with actual devices and InfluxDB instance
+3. **Linting**: Run `flake8` to check code style
+4. **Formatting**: Run `black` to format code
+5. **Integration**: Test with actual devices and InfluxDB instance

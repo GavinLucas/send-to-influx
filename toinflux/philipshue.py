@@ -1,5 +1,10 @@
 """Functions to get data from a Hue Bridge and format ready for InfluxDB"""
 
+__author__ = "Gavin Lucas"
+__copyright__ = "Copyright (C) 2025 Gavin Lucas"
+__license__ = "MIT License"
+__version__ = "1.0"
+
 import sys
 import requests
 from toinflux.influx import DataHandler
@@ -16,7 +21,8 @@ class Hue(DataHandler):
         :rtype: dict
         """
         self.influx_header = f"hue,host={self.settings['hue']['host']} "
-        return self.parse_hue_data()
+        self.data = self.parse_hue_data()
+        return self.data
 
     def get_data_from_hue_bridge(self):
         """

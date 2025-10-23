@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Script to get data from a variety of sources and send it to InfluxDB"""
 
+__author__ = "Gavin Lucas"
+__copyright__ = "Copyright (C) 2025 Gavin Lucas"
+__license__ = "MIT License"
+__version__ = "1.0"
+
 import sys
 import time
 import json
@@ -81,7 +86,7 @@ def main():
             blob = {"time": time.strftime("%a, %d %b %Y, %H:%M:%S %Z", time.localtime()), "data": data}
             print(json.dumps(blob, indent=4))
         else:
-            data_handler.send_data(data)
+            data_handler.send_data()
 
         # Sleep until the next interval
         sleep_time = max(0, next_update - time.time())
