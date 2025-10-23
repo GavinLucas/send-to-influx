@@ -86,7 +86,7 @@ def main():
             blob = {"time": time.strftime("%a, %d %b %Y, %H:%M:%S %Z", time.localtime()), "data": data}
             print(json.dumps(blob, indent=4))
         else:
-            data_handler.send_data(data)
+            data_handler.send_data()
 
         # Sleep until the next interval
         sleep_time = max(0, next_update - time.time())

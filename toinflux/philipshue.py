@@ -21,7 +21,8 @@ class Hue(DataHandler):
         :rtype: dict
         """
         self.influx_header = f"hue,host={self.settings['hue']['host']} "
-        return self.parse_hue_data()
+        self.data = self.parse_hue_data()
+        return self.data
 
     def get_data_from_hue_bridge(self):
         """

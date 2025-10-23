@@ -49,6 +49,7 @@ class DataHandler:
         self.settings = Settings().toinflux
         self.source = source
         self.influx_header = None
+        self.data = None
 
         if self.source and self.source in self.settings:
             self.source_settings = self.settings[self.source]
@@ -56,7 +57,7 @@ class DataHandler:
             print(f"Source {self.source} not found in settings")
             sys.exit(1)
 
-    def send_data(self, data):
+    def send_data(self, data=None):
         """
         Sends data to influxDB
 
@@ -64,6 +65,8 @@ class DataHandler:
         :type data: dict
         :return: None
         """
+        # if the data is not provided, use the data from the class
+        data = data if data else self.data
 
         # minimalist activity indicator
         print(" ^", end="\r")

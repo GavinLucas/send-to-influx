@@ -101,7 +101,8 @@ class Zappi(MyEnergi):
         :rtype: dict
         """
         self.influx_header = "myenergi,device=zappi "
-        return self.parse_zappi_data()
+        self.data = self.parse_zappi_data()
+        return self.data
 
     def parse_zappi_data(self):
         """
