@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
 """General functions and classes for sending data to InfluxDB"""
+
 # pylint: disable=unused-import
 import sys
 import urllib3
