@@ -34,8 +34,8 @@ https://github.com/twonk/MyEnergi-App-Api
 
 Running the script
 ------------------
-- copy example_settings.yaml to settings.yaml
-  - Change the permissions of the file, e.g. `chmod 600 settings.yaml`, so that it's not readable 
+- copy example_settings.yml to settings.yml
+  - Change the permissions of the file, e.g. `chmod 600 settings.yml`, so that it's not readable 
   by other users
   - Fill in the values for your devices and InfluxDB
 - Install the requirements with `pip install -r requirements.txt`
@@ -63,6 +63,16 @@ Usage
 > &emsp; -s, --source SOURCE   the source of the data to send to InfluxDB (hue,
 >                        zappi, etc.) - default is "hue"  
 
+Running the unit tests
+----------------------
+The project uses pytest for unit tests. To run the tests:
+
+- Create a virtual environment (recommended) and install dependencies:
+  `python -m venv .venv && .venv/bin/pip install -r requirements.txt`
+- Run the test suite: `pytest -v` (or `./.venv/bin/pytest -v` if using the venv above)
+
+No real configuration or network access is required; tests use mocks for settings and HTTP. The same test suite runs in CI on every push and pull request.
+
 Project Structure and How to Contribute
 ---------------------------------------
 
@@ -78,8 +88,12 @@ philipshue.py - contains a single child class (Hue) with all the functionality r
 
 myenergi.py - contains an intermediate level child class (MyEnergi) with common functions for retrieving data from the myenergi APIs.   This class in turn has a child class (Zappi) for using those methods to retrieve data specific to a Zappi.  It implements the common method - get_data()
 
+Unit tests for all the functions and classes are located in the 'tests' directory.
+
 So to add a new device, if it's for an existing manufacturer, e.g. adding support for a MyEnergi Eddi you can add a new sub-class to an existing file, otherwise add a new file with a class which is a child of DataHandler and exposes a get_data() method.
 
 Don't forget to add imports to general.py and \_\_init__.py, update the README.md and also add any required settings to example_settings.yml
+
+Also make sure you add unit tests for any functions or classes that you add.  Check that the existing tests still pass and check your linting before pushing changes to avoid CI failures.
 
 Enjoy!

@@ -17,10 +17,9 @@ send-to-influx is a Python application that collects data from various smart hom
 ### Modular Data Sources (`toinflux/` package)
 The project uses a plugin-like architecture where each data source is implemented as a separate module:
 
-#### Base Classes (`toinflux/general.py`)
-- **`Settings`**: Manages YAML configuration file loading and validation
-- **`DataHandler`**: Base class for all data source implementations
-- **`get_class()`**: Factory function to instantiate data source classes dynamically
+#### Base Classes
+- **`toinflux/influx.py`**: `Settings` (YAML configuration loading/validation), `DataHandler` (base class for all data sources)
+- **`toinflux/general.py`**: `get_class()` — factory function to instantiate data source classes dynamically
 
 #### Current Data Sources
 - **`toinflux/philipshue.py`**: Philips Hue Bridge integration
@@ -116,6 +115,7 @@ except requests.exceptions.RequestException as e:
 - `flake8~=7.1.1`: Linting with bugbear and black plugins
 - `flake8-bugbear~=24.10.31`: Additional linting rules
 - `flake8-black~=0.3.6`: Black integration for flake8
+- `pytest~=8.3.0`: Unit test framework
 
 ## CLI Usage
 ```bash
@@ -213,9 +213,18 @@ influx:
 2. **Compatibility**: Ensure backward compatibility with existing data
 3. **Document**: Update configuration and usage documentation
 
+## Testing
+
+### Unit tests
+- **Framework**: pytest. Tests live under `tests/`.
+- **Coverage**: Write unit tests for new and modified code. Tests should cover public functions and classes; use mocks for `Settings`, file I/O, and HTTP so tests run without real config or network.
+- **Running tests**: From the project root, run `pytest -v`. CI runs this on every push and pull request.
+- **Adding tests**: When adding a new data source or changing behaviour, add or update tests in the appropriate `tests/test_*.py` module. Reuse fixtures from `tests/conftest.py` (e.g. `sample_settings`) where applicable.
+
 ## Development Workflow
 1. **Setup**: Copy `example_settings.yml` to `settings.yml` and configure
 2. **Development**: Use `--print` mode for testing without affecting InfluxDB
-3. **Linting**: Run `flake8` to check code style
-4. **Formatting**: Run `black` to format code
-5. **Integration**: Test with actual devices and InfluxDB instance
+3. **Unit tests**: Run `pytest -v` and add/update tests for your changes
+4. **Linting**: Run `flake8` to check code style
+5. **Formatting**: Run `black` to format code
+6. **Integration**: Test with actual devices and InfluxDB instance
