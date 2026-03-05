@@ -18,8 +18,8 @@ send-to-influx is a Python application that collects data from various smart hom
 The project uses a plugin-like architecture where each data source is implemented as a separate module:
 
 #### Base Classes
-- **`toinflux/influx.py`**: `Settings` (YAML configuration loading/validation), `DataHandler` (base class for all data sources)
-- **`toinflux/general.py`**: `get_class()` — factory function to instantiate data source classes dynamically
+- **`toinflux/general.py`**: `load_settings()` (loads YAML configuration and returns a dictionary), `get_class()` (factory function to instantiate data source classes dynamically)
+- **`toinflux/influx.py`**: `DataHandler` (base class for all data sources)
 
 #### Current Data Sources
 - **`toinflux/philipshue.py`**: Philips Hue Bridge integration
@@ -217,7 +217,7 @@ influx:
 
 ### Unit tests
 - **Framework**: pytest. Tests live under `tests/`.
-- **Coverage**: Write unit tests for new and modified code. Tests should cover public functions and classes; use mocks for `Settings`, file I/O, and HTTP so tests run without real config or network.
+- **Coverage**: Write unit tests for new and modified code. Tests should cover public functions and classes; use mocks for `load_settings`, file I/O, and HTTP so tests run without real config or network.
 - **Running tests**: From the project root, run `pytest -v`. CI runs this on every push and pull request.
 - **Adding tests**: When adding a new data source or changing behaviour, add or update tests in the appropriate `tests/test_*.py` module. Reuse fixtures from `tests/conftest.py` (e.g. `sample_settings`) where applicable.
 

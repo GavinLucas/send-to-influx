@@ -1,7 +1,7 @@
 """Shared pytest fixtures and settings data for unit tests."""
 
 import copy
-
+from unittest.mock import MagicMock, patch
 import pytest
 
 _BASE_SAMPLE_SETTINGS = {
@@ -39,3 +39,18 @@ _BASE_SAMPLE_SETTINGS = {
 def sample_settings():
     """Minimal valid toinflux settings for testing handlers."""
     return copy.deepcopy(_BASE_SAMPLE_SETTINGS)
+
+
+@pytest.fixture
+def mock_main_deps():
+    """Patch signal, load_settings, and get_class for main() tests."""
+    mock_handler = MagicMock()
+    mock_handler.get_data.return_value = {}
+    mock_handler.source_settings = {"interval": 60}
+    with (
+        patch("sendtoinflux.signal.signal"),
+        patch("sendtoinflux.toinflux.load_settings") as mock_load_settings,
+        patch("sendtoinflux.toinflux.get_class", return_value=mock_handler) as mock_get_class,
+    ):
+        mock_load_settings.return_value = {"default_source": "hue"}
+        yield mock_handler, mock_get_class

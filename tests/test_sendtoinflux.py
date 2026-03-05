@@ -1,6 +1,6 @@
 """Unit tests for sendtoinflux (signal_handler, main)."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 import pytest
 import sendtoinflux
 
@@ -18,21 +18,6 @@ class TestSignalHandler:
         """signal_handler accepts frame argument (no crash)."""
         with patch("sendtoinflux.sys.exit"):
             sendtoinflux.signal_handler(2, object())
-
-
-@pytest.fixture
-def mock_main_deps():
-    """Patch signal, Settings, and get_class for main() tests."""
-    mock_handler = MagicMock()
-    mock_handler.get_data.return_value = {}
-    mock_handler.source_settings = {"interval": 60}
-    with (
-        patch("sendtoinflux.signal.signal"),
-        patch("sendtoinflux.toinflux.Settings") as mock_settings,
-        patch("sendtoinflux.toinflux.get_class", return_value=mock_handler) as mock_get_class,
-    ):
-        mock_settings.return_value.toinflux = {"default_source": "hue"}
-        yield mock_handler, mock_get_class
 
 
 class TestMain:

@@ -35,7 +35,7 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     # get the default source from the settings
-    default_source = toinflux.Settings().toinflux["default_source"]
+    default_source = toinflux.load_settings()["default_source"]
 
     # parse the command line arguments
     arg_parse = argparse.ArgumentParser(description="Send Hue Data to InfluxDB")

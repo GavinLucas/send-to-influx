@@ -10,8 +10,8 @@ class TestMyEnergi:
 
     def test_get_data_from_myenergi_returns_json_on_200(self, sample_settings):
         """get_data_from_myenergi returns response JSON when status is 200."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             handler = MyEnergi(source="zappi")
             mock_resp = MagicMock()
             mock_resp.status_code = 200
@@ -22,8 +22,8 @@ class TestMyEnergi:
 
     def test_get_data_from_myenergi_exits_on_401(self, sample_settings):
         """get_data_from_myenergi exits on 401."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             handler = MyEnergi(source="zappi")
             mock_resp = MagicMock()
             mock_resp.status_code = 401
@@ -33,8 +33,8 @@ class TestMyEnergi:
 
     def test_get_data_from_myenergi_exits_on_other_error_code(self, sample_settings):
         """get_data_from_myenergi exits on non-200, non-401 status."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             handler = MyEnergi(source="zappi")
             mock_resp = MagicMock()
             mock_resp.status_code = 500
@@ -44,8 +44,8 @@ class TestMyEnergi:
 
     def test_dayhour_results_aggregates_day(self, sample_settings):
         """dayhour_results sums all hours for the day when hour is None."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             handler = MyEnergi(source="zappi")
             serial = handler.source_settings["serial"]
             response_data = {
@@ -63,8 +63,8 @@ class TestMyEnergi:
 
     def test_dayhour_results_single_hour_when_hour_specified(self, sample_settings):
         """dayhour_results returns single hour when hour is specified."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             handler = MyEnergi(source="zappi")
             serial = handler.source_settings["serial"]
             response_data = {
@@ -82,8 +82,8 @@ class TestMyEnergi:
 
     def test_dayhour_results_empty_when_no_serial_key(self, sample_settings):
         """dayhour_results returns zeroed data when response has no U+serial key."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             handler = MyEnergi(source="zappi")
             with patch.object(handler, "get_data_from_myenergi", return_value={}):
                 result = handler.dayhour_results("2025", "01", "15")
@@ -98,8 +98,8 @@ class TestZappi:
 
     def test_get_data_sets_influx_header_and_returns_parsed_data(self, sample_settings):
         """get_data sets influx_header and returns parse_zappi_data result."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             with patch.object(Zappi, "parse_zappi_data", return_value={"frq": 50, "Charge": 1.5}) as mock_parse:
                 zappi = Zappi(source="zappi")
                 result = zappi.get_data()
@@ -110,8 +110,8 @@ class TestZappi:
 
     def test_parse_zappi_data_merges_zappi_and_day_data(self, sample_settings):
         """parse_zappi_data merges API zappi fields with dayhour data."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             zappi = Zappi(source="zappi")
             myenergi_data = {"zappi": [{"frq": 50, "vol": 240, "gen": 100, "other": "ignored"}]}
             day_data = {"Charge": 1.0, "Import": 2.0, "Export": 0.0, "Genera": 0.5}
@@ -130,8 +130,8 @@ class TestZappi:
         settings = {**sample_settings}
         zappi_cfg = {k: v for k, v in settings["zappi"].items() if k != "fields"}
         settings["zappi"] = zappi_cfg
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = settings
             zappi = Zappi(source="zappi")
             myenergi_data = {"zappi": [{"frq": 50, "vol": 240, "custom": "yes"}]}
             day_data = {"Charge": 0, "Import": 0, "Export": 0, "Genera": 0}

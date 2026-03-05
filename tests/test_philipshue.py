@@ -12,8 +12,8 @@ class TestHue:
 
     def test_get_data_sets_influx_header_and_returns_parsed_data(self, sample_settings):
         """get_data sets influx_header and returns parse_hue_data result."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             with patch.object(Hue, "parse_hue_data", return_value={"room1": 21.5}) as mock_parse:
                 hue = Hue(source="hue")
                 result = hue.get_data()
@@ -24,8 +24,8 @@ class TestHue:
 
     def test_get_data_from_hue_bridge_returns_json_on_success(self, sample_settings):
         """get_data_from_hue_bridge returns parsed JSON when request succeeds."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             hue = Hue(source="hue")
             mock_response = MagicMock()
             mock_response.json.return_value = {"sensors": {}, "lights": {}}
@@ -35,8 +35,8 @@ class TestHue:
 
     def test_get_data_from_hue_bridge_exits_on_request_exception(self, sample_settings):
         """get_data_from_hue_bridge exits on requests exception."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             hue = Hue(source="hue")
             with patch("toinflux.philipshue.requests.get") as mock_get:
                 mock_get.side_effect = requests.exceptions.RequestException("connection failed")
@@ -45,8 +45,8 @@ class TestHue:
 
     def test_get_data_from_hue_bridge_exits_on_api_error_list(self, sample_settings):
         """get_data_from_hue_bridge exits when API returns error list."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             hue = Hue(source="hue")
             mock_response = MagicMock()
             mock_response.json.return_value = [{"error": {"description": "unauthorized"}}]
@@ -58,16 +58,16 @@ class TestHue:
         """hue_device_name_to_name uses sensors mapping when in settings."""
         settings = {**sample_settings}
         settings["hue"] = {**settings["hue"], "sensors": {"Device A": "Mapped_Name"}}
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = settings
             hue = Hue(source="hue")
             assert hue.hue_device_name_to_name("Device A") == "Mapped_Name"
             assert hue.hue_device_name_to_name("Unknown Device") == "Unknown_Device"
 
     def test_hue_device_name_to_name_replaces_spaces_with_underscores(self, sample_settings):
         """hue_device_name_to_name replaces spaces with underscores."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             hue = Hue(source="hue")
             assert hue.hue_device_name_to_name("Room 1 Sensor") == "Room_1_Sensor"
 
@@ -77,16 +77,16 @@ class TestHue:
         s = settings["hue"].copy()
         s.pop("sensors", None)
         settings["hue"] = s
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = settings
             hue = Hue(source="hue")
             assert hue.hue_device_name_to_name("My Sensor") == "My_Sensor"
 
     def test_parse_hue_data_temperature_celsius(self, sample_settings):
         """parse_hue_data converts ZLLTemperature to Celsius."""
         settings = {**sample_settings, "hue": {**sample_settings["hue"], "temperature_units": "C"}}
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = settings
             hue = Hue(source="hue")
             hue_data = {
                 "sensors": {
@@ -101,8 +101,8 @@ class TestHue:
     def test_parse_hue_data_temperature_fahrenheit(self, sample_settings):
         """parse_hue_data converts ZLLTemperature to Fahrenheit when configured."""
         settings = {**sample_settings, "hue": {**sample_settings["hue"], "temperature_units": "F"}}
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = settings
             hue = Hue(source="hue")
             hue_data = {
                 "sensors": {
@@ -117,8 +117,8 @@ class TestHue:
     def test_parse_hue_data_temperature_kelvin(self, sample_settings):
         """parse_hue_data converts ZLLTemperature to Kelvin when configured."""
         settings = {**sample_settings, "hue": {**sample_settings["hue"], "temperature_units": "K"}}
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = settings
             hue = Hue(source="hue")
             # 0 centidegrees C = 0°C -> 273.15 K
             hue_data = {
@@ -133,8 +133,8 @@ class TestHue:
 
     def test_parse_hue_data_light_level(self, sample_settings):
         """parse_hue_data converts ZLLLightLevel to lux."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             hue = Hue(source="hue")
             hue_data = {
                 "sensors": {
@@ -149,8 +149,8 @@ class TestHue:
 
     def test_parse_hue_data_presence(self, sample_settings):
         """parse_hue_data converts ZLLPresence to 0 or 1."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             hue = Hue(source="hue")
             hue_data = {
                 "sensors": {
@@ -166,8 +166,8 @@ class TestHue:
 
     def test_parse_hue_data_lights_on_dimmable(self, sample_settings):
         """parse_hue_data converts dimmable light bri to percentage."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             hue = Hue(source="hue")
             hue_data = {
                 "sensors": {},
@@ -181,8 +181,8 @@ class TestHue:
 
     def test_parse_hue_data_lights_off(self, sample_settings):
         """parse_hue_data sets 0 when light is off."""
-        with patch("toinflux.influx.Settings") as mock_settings:
-            mock_settings.return_value.toinflux = sample_settings
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
             hue = Hue(source="hue")
             hue_data = {
                 "sensors": {},
