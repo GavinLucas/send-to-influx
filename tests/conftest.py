@@ -1,9 +1,8 @@
 """Shared pytest fixtures and settings data for unit tests."""
 
-from unittest.mock import MagicMock, patch
 import copy
+from unittest.mock import MagicMock, patch
 import pytest
-
 
 _BASE_SAMPLE_SETTINGS = {
     "default_source": "hue",
