@@ -22,8 +22,8 @@ def get_class(source):
     This function modifies the case of the source so that the user can
     input this in any case and it will still work.
 
-    When adding a new data source, add the class to the classes dictionary
-    and add the import to the imports section below.
+    When adding a new data source, import its class inside this function
+    and add it to the classes dictionary.
 
     :param source: data source name
     :type name: str
@@ -61,7 +61,13 @@ def load_settings(settings_file="settings.yml"):
 
     try:
         with open(settings_path, encoding="utf8") as f:
-            return yaml.safe_load(f)
+            settings = yaml.safe_load(f)
+
+        if not isinstance(settings, dict) or not settings:
+            print(f"Invalid or empty configuration in {settings_path}. Please check settings.yml.")
+            sys.exit(1)
+
+        return settings
     except FileNotFoundError:
         print(f"{settings_path} not found.")
         print("Make sure you copy settings.yml.example to settings.yml and edit it.")

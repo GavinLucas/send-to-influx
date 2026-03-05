@@ -52,6 +52,17 @@ class TestLoadSettings:
         finally:
             Path(path).unlink(missing_ok=True)
 
+    def test_empty_yaml_exits(self):
+        """load_settings exits with 1 on empty YAML file."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
+            f.write("")
+            path = f.name
+        try:
+            with pytest.raises(SystemExit):
+                load_settings(settings_file=path)
+        finally:
+            Path(path).unlink(missing_ok=True)
+
 
 class TestGetClass:
     """Tests for get_class function."""
