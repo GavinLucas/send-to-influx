@@ -45,9 +45,11 @@ class TestMain:
         with (
             patch("sendtoinflux.print") as mock_print,
             patch("sendtoinflux.sys.argv", ["sendtoinflux", "-d"]),
+            patch("sendtoinflux.sys.exit", side_effect=SystemExit(0)) as mock_exit,
         ):
             with pytest.raises(SystemExit):
                 sendtoinflux.main()
+            mock_exit.assert_called_once_with(0)
             mock_handler.get_data.assert_called_once()
             mock_print.assert_called_once()
             call_arg = mock_print.call_args[0][0]
@@ -59,7 +61,7 @@ class TestMain:
         mock_handler, _ = mock_main_deps
         mock_handler.get_data.return_value = {"x": 1}
         with (
-            patch("sendtoinflux.time.time", side_effect=[1000.0, 1060.0]),
+            patch("sendtoinflux.time.time", return_value=1000.0),
             patch("sendtoinflux.time.strftime", return_value="Thu, 01 Jan 1970 00:00:00 UTC"),
             patch("sendtoinflux.time.sleep", side_effect=SystemExit(0)),
             patch("sendtoinflux.sys.argv", ["sendtoinflux", "-p"]),
@@ -73,7 +75,7 @@ class TestMain:
         mock_handler, _ = mock_main_deps
         mock_handler.get_data.return_value = {"x": 1}
         with (
-            patch("sendtoinflux.time.time", side_effect=[1000.0, 1060.0]),
+            patch("sendtoinflux.time.time", return_value=1000.0),
             patch("sendtoinflux.time.sleep", side_effect=SystemExit(0)),
             patch("sendtoinflux.sys.argv", ["sendtoinflux"]),
         ):

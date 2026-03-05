@@ -84,9 +84,9 @@ class TestHue:
 
     def test_parse_hue_data_temperature_celsius(self, sample_settings):
         """parse_hue_data converts ZLLTemperature to Celsius."""
+        settings = {**sample_settings, "hue": {**sample_settings["hue"], "temperature_units": "C"}}
         with patch("toinflux.influx.Settings") as mock_settings:
-            sample_settings["hue"]["temperature_units"] = "C"
-            mock_settings.return_value.toinflux = sample_settings
+            mock_settings.return_value.toinflux = settings
             hue = Hue(source="hue")
             hue_data = {
                 "sensors": {
@@ -100,9 +100,9 @@ class TestHue:
 
     def test_parse_hue_data_temperature_fahrenheit(self, sample_settings):
         """parse_hue_data converts ZLLTemperature to Fahrenheit when configured."""
+        settings = {**sample_settings, "hue": {**sample_settings["hue"], "temperature_units": "F"}}
         with patch("toinflux.influx.Settings") as mock_settings:
-            sample_settings["hue"]["temperature_units"] = "F"
-            mock_settings.return_value.toinflux = sample_settings
+            mock_settings.return_value.toinflux = settings
             hue = Hue(source="hue")
             hue_data = {
                 "sensors": {
@@ -116,9 +116,9 @@ class TestHue:
 
     def test_parse_hue_data_temperature_kelvin(self, sample_settings):
         """parse_hue_data converts ZLLTemperature to Kelvin when configured."""
+        settings = {**sample_settings, "hue": {**sample_settings["hue"], "temperature_units": "K"}}
         with patch("toinflux.influx.Settings") as mock_settings:
-            sample_settings["hue"]["temperature_units"] = "K"
-            mock_settings.return_value.toinflux = sample_settings
+            mock_settings.return_value.toinflux = settings
             hue = Hue(source="hue")
             # 0 centidegrees C = 0°C -> 273.15 K
             hue_data = {
