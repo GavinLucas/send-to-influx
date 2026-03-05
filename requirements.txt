@@ -4,3 +4,4 @@ flake8-black~=0.4.0
 black~=25.9.0
 requests~=2.32.5
 pyyaml~=6.0.3
+pytest~=8.3.0
