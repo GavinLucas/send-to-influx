@@ -94,6 +94,6 @@ So to add a new device, if it's for an existing manufacturer, e.g. adding suppor
 
 Don't forget to add imports to general.py and \_\_init__.py, update the README.md and also add any required settings to example_settings.yml
 
-Also make sure you add unit tests for any functions or classes that you add.  Check that the existing test still pass and check your linting before pushing changes to avoid CI failures.
+Also make sure you add unit tests for any functions or classes that you add.  Check that the existing tests still pass and check your linting before pushing changes to avoid CI failures.
 
 Enjoy!
