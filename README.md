@@ -92,7 +92,7 @@ Unit tests for all the functions and classes are located in the 'tests' director
 
 So to add a new device, if it's for an existing manufacturer, e.g. adding support for a MyEnergi Eddi you can add a new sub-class to an existing file, otherwise add a new file with a class which is a child of DataHandler and exposes a get_data() method.
 
-Don't forget to add imports to general.py and \_\_init__.py, update the README.md and also add any required settings to example_settings.yml
+Don't forget to add imports for any new data collector classes to get_class() in general.py and \_\_init__.py, update the README.md and also add any required settings to example_settings.yml
 
 Also make sure you add unit tests for any functions or classes that you add.  Check that the existing tests still pass and check your linting before pushing changes to avoid CI failures.
 
