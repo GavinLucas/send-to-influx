@@ -108,7 +108,7 @@ except requests.exceptions.RequestException as e:
 
 ### Core Dependencies
 - `requests~=2.32.5`: HTTP requests for APIs and InfluxDB
-- `urllib3~=2.6.3`: HTTP client dependency used directly in settings handling
+- `urllib3~=2.6.3`: HTTP client library used in `toinflux/general.py` to disable `InsecureRequestWarning` globally
 - `pyyaml~=6.0.3`: YAML configuration file parsing
 
 ### Development Dependencies
