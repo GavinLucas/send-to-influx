@@ -38,7 +38,7 @@ Running the script
   - Change the permissions of the file, e.g. `chmod 600 settings.yml`, so that it's not readable 
   by other users
   - Fill in the values for your devices and InfluxDB
-- Install the requirements with `pip install -r requirements.txt`
+- Install runtime requirements with `pip install -r requirements.txt`
 - Leave the script running in a screen session and sit back and watch the data roll in.
 
 There are a few options that can be passed to the script and a couple of these can help you to debug and also to help you understand your data:
@@ -67,8 +67,8 @@ Running the unit tests
 ----------------------
 The project uses pytest for unit tests. To run the tests:
 
-- Create a virtual environment (recommended) and install dependencies:
-  `python -m venv .venv && .venv/bin/pip install -r requirements.txt`
+- Create a virtual environment (recommended) and install development dependencies:
+  `python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt`
 - Run the test suite: `pytest -v` (or `./.venv/bin/pytest -v` if using the venv above)
 
 No real configuration or network access is required; tests use mocks for settings and HTTP. The same test suite runs in CI on every push and pull request.

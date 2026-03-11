@@ -107,15 +107,18 @@ except requests.exceptions.RequestException as e:
 ## Dependencies
 
 ### Core Dependencies
-- `requests~=2.32.3`: HTTP requests for APIs and InfluxDB
+- `requests~=2.32.5`: HTTP requests for APIs and InfluxDB
+- `urllib3~=2.6.3`: HTTP client dependency used directly in settings handling
 - `pyyaml~=6.0.3`: YAML configuration file parsing
 
 ### Development Dependencies
-- `black~=24.4.2`: Code formatting
-- `flake8~=7.1.1`: Linting with bugbear and black plugins
-- `flake8-bugbear~=24.10.31`: Additional linting rules
-- `flake8-black~=0.3.6`: Black integration for flake8
-- `pytest~=8.3.0`: Unit test framework
+- `black~=26.3.0`: Code formatting
+- `flake8~=7.3.0`: Linting with bugbear and black plugins
+- `flake8-bugbear~=25.11.29`: Additional linting rules
+- `flake8-black~=0.4.0`: Black integration for flake8
+- `pytest~=9.0.2`: Unit test framework
+
+Install runtime requirements with `pip install -r requirements.txt`, or development requirements (which include runtime) with `pip install -r requirements-dev.txt`.
 
 ## CLI Usage
 ```bash
@@ -218,7 +221,7 @@ influx:
 ### Unit tests
 - **Framework**: pytest. Tests live under `tests/`.
 - **Coverage**: Write unit tests for new and modified code. Tests should cover public functions and classes; use mocks for `load_settings`, file I/O, and HTTP so tests run without real config or network.
-- **Running tests**: From the project root, run `pytest -v`. CI runs this on every push and pull request.
+- **Running tests**: Install dev dependencies (`pip install -r requirements-dev.txt`) then run `pytest -v`. CI runs this on every push and pull request.
 - **Adding tests**: When adding a new data source or changing behaviour, add or update tests in the appropriate `tests/test_*.py` module. Reuse fixtures from `tests/conftest.py` (e.g. `sample_settings`) where applicable.
 
 ## Development Workflow
