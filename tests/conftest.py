@@ -6,7 +6,7 @@ import pytest
 
 _BASE_SAMPLE_SETTINGS = {
     "sources": ["hue", "zappi", "speedtest"],
-    "tagger_seconds": 10,
+    "stagger_seconds": 10,
     "default_source": "hue",
     "hue": {
         "db": "hue_db",

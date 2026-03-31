@@ -55,6 +55,8 @@ By default, `sendtoinflux.py` starts one worker per source listed in the `source
 
 Worker start times are slightly staggered to avoid all collectors firing at exactly the same moment when intervals are equal.
 
+In multi-source mode, if a source fails, only that source is retried. Failed sources are automatically restarted with exponential backoff to avoid tight failure loops, while other sources keep running.
+
 There are a few options that can be passed to the script and a couple of these can help you to debug and also to help you understand your data:
 
 - To run only one data source, use the 'source' option, e.g. `sendtoinflux.py --source zappi`.
@@ -65,7 +67,8 @@ parsed data structure as json.
 
 Configuration options for multi-source mode:
 - `sources`: list of source names to run in parallel when `--source` is not provided
-- `stagger_seconds` (optional): delay between source starts (default `2`)
+- `stagger_seconds` (optional): delay between source starts (default `10`)
+- failed source retries: exponential backoff with a 5 second base and 300 second maximum
 
 Usage
 -----
@@ -78,8 +81,8 @@ Usage
 > &emsp; -h, --help            show this help message and exit  
 > &emsp; -d, --dump            dump the data to the console one time and exit. This requires a source to be specified  
 > &emsp; -p, --print           print the data rather than sending it to InfluxDB  
-> &emsp; -s, --source SOURCE   the source of the data to send to InfluxDB (hue, zappi, etc.). If omitted, all sources in the settings file 'sources' list are
-> &emsp;                       started. If no source is specified, the default source is used: hue
+> &emsp; -s, --source SOURCE   the source of the data to send to InfluxDB (hue, zappi, etc.). If this parameter is omitted, all sources in the settings file
+> &emsp;                       'sources' list are started. If no sources are specified in the settings file, the default source is used: hue
 
 Running the unit tests
 ----------------------

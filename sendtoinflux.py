@@ -63,8 +63,8 @@ def main():
         type=str,
         help=(
             "the source of the data to send to InfluxDB (hue, zappi, etc.). "
-            "If omitted, all sources in the settings file 'sources' list are started. "
-            f"If no source is specified, the default source is used: {default_source}"
+            "If this parameter is omitted, all sources in the settings file 'sources' list are started. "
+            f"If no sources are specified in the settings file, the default source is used: {default_source}"
         ),
     )
     args = arg_parse.parse_args()
@@ -133,25 +133,44 @@ def run_multi_source(sources, args, stagger_seconds):
     :type stagger_seconds: int
     """
 
+    backoff_base_seconds = 5
+    backoff_max_seconds = 300
+
     def source_worker(source, source_start_delay):
-        data_handler = toinflux.get_class(source)
+        failure_count = 0
         next_update = time.time() + source_start_delay
         while True:
-            sleep_time = max(0, next_update - time.time())
-            time.sleep(sleep_time)
+            try:
+                data_handler = toinflux.get_class(source)
+                sleep_time = max(0, next_update - time.time())
+                time.sleep(sleep_time)
 
-            data = data_handler.get_data()
-            if args.print:
-                blob = {
-                    "source": source,
-                    "time": time.strftime("%a, %d %b %Y, %H:%M:%S %Z", time.localtime()),
-                    "data": data,
-                }
-                print(json.dumps(blob, indent=4))
-            else:
-                data_handler.send_data()
+                data = data_handler.get_data()
+                if args.print:
+                    blob = {
+                        "source": source,
+                        "time": time.strftime("%a, %d %b %Y, %H:%M:%S %Z", time.localtime()),
+                        "data": data,
+                    }
+                    print(json.dumps(blob, indent=4))
+                else:
+                    data_handler.send_data()
 
-            next_update += data_handler.source_settings["interval"]
+                next_update += data_handler.source_settings["interval"]
+                failure_count = 0
+            except SystemExit as exc:
+                failure_count += 1
+                restart_delay = min(backoff_base_seconds * (2 ** (failure_count - 1)), backoff_max_seconds)
+                print(
+                    f"Source '{source}' exited with code {exc.code}. "
+                    f"Restarting in {restart_delay} seconds (attempt {failure_count})."
+                )
+                next_update = time.time() + restart_delay
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                failure_count += 1
+                restart_delay = min(backoff_base_seconds * (2 ** (failure_count - 1)), backoff_max_seconds)
+                print(f"Source '{source}' failed: {exc}. Restarting in {restart_delay} seconds (attempt {failure_count}).")
+                next_update = time.time() + restart_delay
 
     threads = []
     for index, source in enumerate(sources):
@@ -161,6 +180,16 @@ def run_multi_source(sources, args, stagger_seconds):
         threads.append(source_thread)
 
     while True:
+        if any(not thread.is_alive() for thread in threads):
+            print("One or more source workers stopped unexpectedly. Restarting worker thread.")
+            for idx, thread in enumerate(threads):
+                if thread.is_alive():
+                    continue
+                source = sources[idx]
+                start_delay = max(0, stagger_seconds) * idx
+                replacement = threading.Thread(target=source_worker, args=(source, start_delay), daemon=True)
+                replacement.start()
+                threads[idx] = replacement
         time.sleep(1)
 
 

@@ -16,7 +16,10 @@ send-to-influx is a Python application that collects data from various smart hom
   - Normal mode: Continuous data collection and transmission to InfluxDB
 - **Timing**:
   - per-source interval-based timing system to avoid drift
-  - multi-source startup stagger via optional `stagger_seconds` setting (default `2`)
+  - multi-source startup stagger via optional `stagger_seconds` setting (default `10`)
+- **Resilience**:
+  - in multi-source mode, source failures do not stop the process
+  - failed sources are restarted independently with exponential backoff (base `5s`, max `300s`)
 
 ### Modular Data Sources (`toinflux/` package)
 The project uses a plugin-like architecture where each data source is implemented as a separate module:
@@ -34,7 +37,7 @@ The project uses a plugin-like architecture where each data source is implemente
 YAML-based configuration supporting multiple data sources:
 - **Orchestration**:
   - `sources`: list of sources to run in parallel when `--source` is omitted
-  - `stagger_seconds`: optional start delay between sources
+  - `stagger_seconds`: optional start delay between sources (default `10`)
 - **Defaults**:
   - `default_source`: used when no `sources` list is configured and `--source` is omitted
 - **Hue**: Bridge connection, sensor mappings, temperature units
@@ -190,7 +193,7 @@ sources:
   - "zappi"
   - "speedtest"
 
-stagger_seconds: 2
+stagger_seconds: 10
 default_source: "hue"
 ```
 
