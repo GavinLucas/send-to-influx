@@ -1,5 +1,15 @@
 # Settings for the HueToInflux script
 
+# The sources to be kicked off by the wrapper script
+sources:
+  - "hue"
+  - "zappi"
+  - "speedtest"
+
+# Optional stagger delay (seconds) between source starts
+# This avoids collectors with equal intervals running at exactly the same time
+stagger_seconds: 10
+
 # The default source to use if no source is specified on the command line
 default_source: "hue"
 
@@ -53,7 +63,7 @@ zappi:
   # The serial number of the Zappi device
   serial: "your_zappi_serial"
   # The fields to collect from the Zappi device
-  zappi_fields:
+  fields:
     - "frq"
     - "vol"
     - "gen"
