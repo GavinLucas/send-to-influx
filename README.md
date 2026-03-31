@@ -51,27 +51,35 @@ Running the script
 - Install runtime requirements with `pip install -r requirements.txt`
 - Leave the script running in a screen session and sit back and watch the data roll in.
 
+By default, `sendtoinflux.py` starts one worker per source listed in the `sources` setting. Each source runs in its own loop using its own `interval`.
+
+Worker start times are slightly staggered to avoid all collectors firing at exactly the same moment when intervals are equal.
+
 There are a few options that can be passed to the script and a couple of these can help you to debug and also to help you understand your data:
 
-- To specify the data source, you can use the 'source' option, e.g. `sendtoinflux.py --source zappi`.
+- To run only one data source, use the 'source' option, e.g. `sendtoinflux.py --source zappi`.
 - To dump all the data from the Hue Bridge in order to see the names, etc., run `sendtoinflux.py --dump` 
 and it will output all the data returned as json.
 - To print the data rather than send it to InfluxDB, run `sendtoinflux.py --print` and it will output the
 parsed data structure as json.
 
+Configuration options for multi-source mode:
+- `sources`: list of source names to run in parallel when `--source` is not provided
+- `stagger_seconds` (optional): delay between source starts (default `2`)
+
 Usage
 -----
 >$ ./.venv/bin/python ./sendtoinflux.py --help  
->usage: sendtoinflux.py [-h] [-d] [-p] -s SOURCE
+>usage: sendtoinflux.py [-h] [-d] [-p] [-s SOURCE]
 >
 >Send Hue Data to InfluxDB
 >
 >options:  
 > &emsp; -h, --help            show this help message and exit  
-> &emsp; -d, --dump            dump the data to the console  
+> &emsp; -d, --dump            dump the data to the console one time and exit. This requires a source to be specified  
 > &emsp; -p, --print           print the data rather than sending it to InfluxDB  
-> &emsp; -s, --source SOURCE   the source of the data to send to InfluxDB (hue,
->                        zappi, etc.) - default is "hue"  
+> &emsp; -s, --source SOURCE   the source of the data to send to InfluxDB (hue, zappi, etc.). If omitted, all sources in the settings file 'sources' list are
+> &emsp;                       started. If no source is specified, the default source is used: hue
 
 Running the unit tests
 ----------------------

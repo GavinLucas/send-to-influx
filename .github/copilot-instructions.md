@@ -7,12 +7,16 @@ send-to-influx is a Python application that collects data from various smart hom
 
 ### Main Application (`sendtoinflux.py`)
 - **Entry Point**: Command-line script with signal handling for graceful shutdown
-- **Source Selection**: Supports multiple data sources via `--source` parameter
+- **Source Selection**:
+  - `--source <name>` runs a single source
+  - if `--source` is omitted, starts one worker per entry in `sources` from `settings.yml`
 - **CLI Modes**: 
   - `--dump`: One-time data export (JSON format)
   - `--print`: Continuous monitoring with JSON output to console
   - Normal mode: Continuous data collection and transmission to InfluxDB
-- **Timing**: Uses interval-based timing system to avoid drift
+- **Timing**:
+  - per-source interval-based timing system to avoid drift
+  - multi-source startup stagger via optional `stagger_seconds` setting (default `2`)
 
 ### Modular Data Sources (`toinflux/` package)
 The project uses a plugin-like architecture where each data source is implemented as a separate module:
@@ -28,6 +32,11 @@ The project uses a plugin-like architecture where each data source is implemente
 
 ### Configuration (`settings.yml`)
 YAML-based configuration supporting multiple data sources:
+- **Orchestration**:
+  - `sources`: list of sources to run in parallel when `--source` is omitted
+  - `stagger_seconds`: optional start delay between sources
+- **Defaults**:
+  - `default_source`: used when no `sources` list is configured and `--source` is omitted
 - **Hue**: Bridge connection, sensor mappings, temperature units
 - **MyEnergi**: API endpoints, authentication, device serials
 - **Zappi**: Field selection, collection intervals
@@ -125,7 +134,10 @@ Install runtime requirements with `.venv/bin/pip install -r requirements.txt`, o
 
 ## CLI Usage
 ```bash
-# Normal operation (send data to InfluxDB)
+# Normal operation for all configured sources in settings.yml
+python sendtoinflux.py
+
+# Normal operation for a single source
 python sendtoinflux.py --source hue
 
 # One-time data export
@@ -135,6 +147,7 @@ python sendtoinflux.py --source zappi --dump
 python sendtoinflux.py --source hue --print
 
 # Available sources: hue, zappi, speedtest (and any other implemented sources)
+# Multi-source mode uses the settings.yml `sources` list.
 ```
 
 ## Configuration Examples
@@ -163,11 +176,22 @@ myenergi:
 zappi:
   interval: 300
   serial: "your_zappi_serial"
-  zappi_fields:
+  fields:
     - "frq"
     - "vol"
     - "gen"
     - "grd"
+```
+
+### Multi-source Configuration
+```yaml
+sources:
+  - "hue"
+  - "zappi"
+  - "speedtest"
+
+stagger_seconds: 2
+default_source: "hue"
 ```
 
 ### Speedtest settings

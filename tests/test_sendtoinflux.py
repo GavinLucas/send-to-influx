@@ -78,3 +78,38 @@ class TestMain:
             with pytest.raises(SystemExit):
                 sendtoinflux.main()
             mock_get_class.assert_called_once_with("zappi")
+
+    def test_main_without_source_runs_configured_sources(self):
+        """main without --source starts multi-source mode using settings sources list."""
+        with (
+            patch("sendtoinflux.signal.signal"),
+            patch("sendtoinflux.toinflux.load_settings") as mock_load_settings,
+            patch("sendtoinflux.run_multi_source") as mock_run_multi_source,
+            patch("sendtoinflux.sys.argv", ["sendtoinflux"]),
+        ):
+            mock_load_settings.return_value = {
+                "default_source": "hue",
+                "sources": ["hue", "zappi", "speedtest"],
+                "stagger_seconds": 3,
+            }
+            sendtoinflux.main()
+            mock_run_multi_source.assert_called_once()
+            call_args = mock_run_multi_source.call_args[0]
+            assert call_args[0] == ["hue", "zappi", "speedtest"]
+            assert call_args[2] == 3
+
+    def test_main_multi_source_dump_requires_source(self):
+        """main in multi-source mode exits when --dump is used without --source."""
+        with (
+            patch("sendtoinflux.signal.signal"),
+            patch("sendtoinflux.toinflux.load_settings") as mock_load_settings,
+            patch("sendtoinflux.sys.argv", ["sendtoinflux", "--dump"]),
+            patch("sendtoinflux.sys.exit", side_effect=SystemExit(1)) as mock_exit,
+        ):
+            mock_load_settings.return_value = {
+                "default_source": "hue",
+                "sources": ["hue", "zappi"],
+            }
+            with pytest.raises(SystemExit):
+                sendtoinflux.main()
+            mock_exit.assert_called_once_with(1)

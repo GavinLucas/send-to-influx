@@ -5,6 +5,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 _BASE_SAMPLE_SETTINGS = {
+    "sources": ["hue", "zappi", "speedtest"],
+    "tagger_seconds": 10,
     "default_source": "hue",
     "hue": {
         "db": "hue_db",
@@ -25,6 +27,12 @@ _BASE_SAMPLE_SETTINGS = {
         "interval": 300,
         "serial": "12345",
         "fields": ["frq", "vol", "gen"],
+    },
+    "speedtest": {
+        "db": "speedtest_db",
+        "interval": 3600,
+        "timeout": 60,
+        "fields": ["download", "upload", "ping"],
     },
     "influx": {
         "url": "https://influx.example.com:8086",
