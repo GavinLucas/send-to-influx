@@ -9,6 +9,7 @@ import sys
 from socket import gethostname
 import speedtest
 from toinflux.influx import DataHandler
+from toinflux.general import flatten_dict
 
 
 class Speedtest(DataHandler):
@@ -39,11 +40,14 @@ class Speedtest(DataHandler):
             print("Error running Speedtest - invalid results")
             sys.exit(2)
 
+        # flatten the speedtest payload so nested values can be filtered and sent
+        flattened_data = flatten_dict(st_data)
+
         # just extract the specific fields we want here
         if "fields" in self.settings["speedtest"]:
-            self.data = {k: st_data[k] for k in self.settings["speedtest"]["fields"] if k in st_data}
+            self.data = {k: flattened_data[k] for k in self.settings["speedtest"]["fields"] if k in flattened_data}
         else:
-            self.data = st_data
+            self.data = flattened_data
 
         # use the local hostname as the host tag
         self.influx_header = f"speedtest,host={gethostname().split('.')[0]} "

@@ -36,6 +36,10 @@ class DataHandler:
         # if the data is not provided, use the data from the class
         data = data if data else self.data
 
+        if not data or not isinstance(data, dict):
+            print("No data to send to InfluxDB")
+            return
+
         # minimalist activity indicator
         print(" ^", end="\r")
 

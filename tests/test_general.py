@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 import pytest
 import yaml
-from toinflux.general import load_settings, get_class
+from toinflux.general import flatten_dict, load_settings, get_class
 
 
 class TestLoadSettings:
@@ -103,7 +103,44 @@ class TestGetClass:
                 mock_speedtest.assert_called_once_with("speedtest")
                 assert result is mock_speedtest.return_value
 
+    def test_get_class_returns_speedtest_for_uppercase(self, sample_settings):
+        """get_class('Speedtest') uses capitalised class name and lower source."""
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
+            with patch("toinflux.speedtest.Speedtest") as mock_speedtest:
+                result = get_class("Speedtest")
+                mock_speedtest.assert_called_once_with("speedtest")
+                assert result is mock_speedtest.return_value
+
     def test_get_class_unknown_source_exits(self):
         """get_class with unknown source exits with 1."""
         with pytest.raises(SystemExit):
             get_class("nosuchsource")
+
+
+class TestFlattenDict:
+    """Tests for flatten_dict function."""
+
+    def test_flat_dict_is_unchanged(self):
+        """flatten_dict keeps flat dictionaries unchanged."""
+        data = {"a": 1, "b": 2}
+        assert flatten_dict(data) == {"a": 1, "b": 2}
+
+    def test_nested_dict_is_flattened_with_default_separator(self):
+        """flatten_dict flattens nested dictionaries using dot separator."""
+        data = {"a": {"b": {"c": 1}}, "d": 2}
+        assert flatten_dict(data) == {"a_b_c": 1, "d": 2}
+
+    def test_nested_dict_with_custom_separator(self):
+        """flatten_dict supports a custom key separator."""
+        data = {"a": {"b": 1}}
+        assert flatten_dict(data, sep=".") == {"a.b": 1}
+
+    def test_mixed_values_are_preserved(self):
+        """flatten_dict preserves non-dict values in nested structures."""
+        data = {"a": {"b": [1, 2]}, "c": None, "d": {"e": True}}
+        assert flatten_dict(data) == {"a_b": [1, 2], "c": None, "d_e": True}
+
+    def test_empty_dict_returns_empty_dict(self):
+        """flatten_dict returns empty dict for empty input."""
+        assert not flatten_dict({})

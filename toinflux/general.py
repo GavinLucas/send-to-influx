@@ -15,6 +15,33 @@ import yaml
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
+def flatten_dict(data, parent_key="", sep="_"):
+    """Flatten a nested dictionary into a single-level dictionary.
+
+    Nested keys are joined with ``sep``. Non-dictionary values are copied
+    directly to the flattened output.
+
+    :param data: dictionary to flatten
+    :type data: dict
+    :param parent_key: prefix used during recursion
+    :type parent_key: str
+    :param sep: separator for nested keys
+    :type sep: str
+    :return: flattened dictionary
+    :rtype: dict
+    """
+    flattened = {}
+
+    for key, value in data.items():
+        new_key = f"{parent_key}{sep}{key}" if parent_key else str(key)
+        if isinstance(value, dict):
+            flattened.update(flatten_dict(value, parent_key=new_key, sep=sep))
+        else:
+            flattened[new_key] = value
+
+    return flattened
+
+
 def get_class(source):
     """
     Create and return a class object for the given data source name

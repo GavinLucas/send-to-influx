@@ -71,7 +71,7 @@ speedtest:
   db: "speedtest_db"
   # Interval in seconds between data collection
   interval: 21600
-  #Timeout for the speedtest scan
+  # Timeout for the speedtest scan
   timeout: 5
   # The fields to collect from the Speedtest results
   
