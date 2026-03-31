@@ -15,6 +15,72 @@ import threading
 import toinflux
 
 
+def print_source_data(source, data):
+    """Print data from a source in a consistent JSON envelope."""
+    blob = {
+        "source": source,
+        "time": time.strftime("%a, %d %b %Y, %H:%M:%S %Z", time.localtime()),
+        "data": data,
+    }
+    print(json.dumps(blob, indent=4))
+
+
+def get_backoff_delay(failure_count, backoff_base_seconds=5, backoff_max_seconds=300):
+    """Return the bounded exponential backoff delay in seconds."""
+    return min(backoff_base_seconds * (2 ** (failure_count - 1)), backoff_max_seconds)
+
+
+def collect_source_data(source, args):
+    """Collect one data point for a source and either print or send it."""
+    data_handler = toinflux.get_class(source)
+    data = data_handler.get_data()
+    if args.print:
+        print_source_data(source, data)
+    else:
+        data_handler.send_data()
+    return data_handler.source_settings["interval"]
+
+
+def create_source_worker(source, source_start_delay, args):
+    """Create a worker function for continuous source collection with retries."""
+
+    def source_worker():
+        failure_count = 0
+        next_update = time.time() + source_start_delay
+        while True:
+            try:
+                sleep_time = max(0, next_update - time.time())
+                time.sleep(sleep_time)
+                interval = collect_source_data(source, args)
+                next_update += interval
+                failure_count = 0
+            except SystemExit as exc:
+                failure_count += 1
+                restart_delay = get_backoff_delay(failure_count)
+                print(
+                    f"Source '{source}' exited with code {exc.code}. "
+                    f"Restarting in {restart_delay} seconds (attempt {failure_count})."
+                )
+                next_update = time.time() + restart_delay
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                failure_count += 1
+                restart_delay = get_backoff_delay(failure_count)
+                print(
+                    f"Source '{source}' failed: {exc}. Restarting in {restart_delay} seconds "
+                    f"(attempt {failure_count})."
+                )
+                next_update = time.time() + restart_delay
+
+    return source_worker
+
+
+def spawn_source_thread(worker):
+    """Create and start a daemon thread for a source worker."""
+    source_thread = threading.Thread(target=worker, daemon=True)
+    source_thread.start()
+    return source_thread
+
+
 def signal_handler(sig, frame):
     """
     Signal handler to exit gracefully
@@ -108,12 +174,7 @@ def run_single_source(source, args):
         data = data_handler.get_data()
 
         if args.print:
-            blob = {
-                "source": source,
-                "time": time.strftime("%a, %d %b %Y, %H:%M:%S %Z", time.localtime()),
-                "data": data,
-            }
-            print(json.dumps(blob, indent=4))
+            print_source_data(source, data)
         else:
             data_handler.send_data()
 
@@ -133,63 +194,21 @@ def run_multi_source(sources, args, stagger_seconds):
     :type stagger_seconds: int
     """
 
-    backoff_base_seconds = 5
-    backoff_max_seconds = 300
-
-    def source_worker(source, source_start_delay):
-        failure_count = 0
-        next_update = time.time() + source_start_delay
-        while True:
-            try:
-                data_handler = toinflux.get_class(source)
-                sleep_time = max(0, next_update - time.time())
-                time.sleep(sleep_time)
-
-                data = data_handler.get_data()
-                if args.print:
-                    blob = {
-                        "source": source,
-                        "time": time.strftime("%a, %d %b %Y, %H:%M:%S %Z", time.localtime()),
-                        "data": data,
-                    }
-                    print(json.dumps(blob, indent=4))
-                else:
-                    data_handler.send_data()
-
-                next_update += data_handler.source_settings["interval"]
-                failure_count = 0
-            except SystemExit as exc:
-                failure_count += 1
-                restart_delay = min(backoff_base_seconds * (2 ** (failure_count - 1)), backoff_max_seconds)
-                print(
-                    f"Source '{source}' exited with code {exc.code}. "
-                    f"Restarting in {restart_delay} seconds (attempt {failure_count})."
-                )
-                next_update = time.time() + restart_delay
-            except Exception as exc:  # pylint: disable=broad-exception-caught
-                failure_count += 1
-                restart_delay = min(backoff_base_seconds * (2 ** (failure_count - 1)), backoff_max_seconds)
-                print(f"Source '{source}' failed: {exc}. Restarting in {restart_delay} seconds (attempt {failure_count}).")
-                next_update = time.time() + restart_delay
-
     threads = []
+    workers = []
+    stagger_step = max(0, stagger_seconds)
     for index, source in enumerate(sources):
-        start_delay = max(0, stagger_seconds) * index
-        source_thread = threading.Thread(target=source_worker, args=(source, start_delay), daemon=True)
-        source_thread.start()
-        threads.append(source_thread)
+        start_delay = stagger_step * index
+        worker = create_source_worker(source, start_delay, args)
+        workers.append(worker)
+        threads.append(spawn_source_thread(worker))
 
     while True:
         if any(not thread.is_alive() for thread in threads):
             print("One or more source workers stopped unexpectedly. Restarting worker thread.")
             for idx, thread in enumerate(threads):
-                if thread.is_alive():
-                    continue
-                source = sources[idx]
-                start_delay = max(0, stagger_seconds) * idx
-                replacement = threading.Thread(target=source_worker, args=(source, start_delay), daemon=True)
-                replacement.start()
-                threads[idx] = replacement
+                if not thread.is_alive():
+                    threads[idx] = spawn_source_thread(workers[idx])
         time.sleep(1)
 
 
