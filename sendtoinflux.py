@@ -14,6 +14,10 @@ import argparse
 import threading
 import toinflux
 
+DEFAULT_STAGGER_SECONDS = 10
+BACKOFF_BASE_SECONDS = 5
+BACKOFF_MAX_SECONDS = 300
+
 
 def print_source_data(source, data):
     """Print data from a source in a consistent JSON envelope."""
@@ -25,14 +29,22 @@ def print_source_data(source, data):
     print(json.dumps(blob, indent=4))
 
 
-def get_backoff_delay(failure_count, backoff_base_seconds=5, backoff_max_seconds=300):
+def get_backoff_delay(
+    failure_count, backoff_base_seconds=BACKOFF_BASE_SECONDS, backoff_max_seconds=BACKOFF_MAX_SECONDS
+):
     """Return the bounded exponential backoff delay in seconds."""
-    return min(backoff_base_seconds * (2 ** (failure_count - 1)), backoff_max_seconds)
+    exponent = max(0, failure_count - 1)
+    if backoff_base_seconds <= 0:
+        return 0
+    ratio = max(1, backoff_max_seconds // backoff_base_seconds)
+    max_exponent = ratio.bit_length()
+    exponent = min(exponent, max_exponent)
+    delay = backoff_base_seconds * (2**exponent)
+    return min(delay, backoff_max_seconds)
 
 
-def collect_source_data(source, args):
+def collect_source_data(source, args, data_handler):
     """Collect one data point for a source and either print or send it."""
-    data_handler = toinflux.get_class(source)
     data = data_handler.get_data()
     if args.print:
         print_source_data(source, data)
@@ -47,11 +59,14 @@ def create_source_worker(source, source_start_delay, args):
     def source_worker():
         failure_count = 0
         next_update = time.time() + source_start_delay
+        data_handler = None
         while True:
             try:
+                if data_handler is None:
+                    data_handler = toinflux.get_class(source)
                 sleep_time = max(0, next_update - time.time())
                 time.sleep(sleep_time)
-                interval = collect_source_data(source, args)
+                interval = collect_source_data(source, args, data_handler)
                 next_update += interval
                 failure_count = 0
             except SystemExit as exc:
@@ -61,6 +76,7 @@ def create_source_worker(source, source_start_delay, args):
                     f"Source '{source}' exited with code {exc.code}. "
                     f"Restarting in {restart_delay} seconds (attempt {failure_count})."
                 )
+                data_handler = None
                 next_update = time.time() + restart_delay
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 failure_count += 1
@@ -69,6 +85,7 @@ def create_source_worker(source, source_start_delay, args):
                     f"Source '{source}' failed: {exc}. Restarting in {restart_delay} seconds "
                     f"(attempt {failure_count})."
                 )
+                data_handler = None
                 next_update = time.time() + restart_delay
 
     return source_worker
@@ -148,7 +165,7 @@ def main():
         print("The --dump option requires --source when running in multi-source mode.")
         sys.exit(1)
 
-    run_multi_source(sources, args, settings.get("stagger_seconds", 10))
+    run_multi_source(sources, args, settings.get("stagger_seconds", DEFAULT_STAGGER_SECONDS))
 
 
 def run_single_source(source, args):
@@ -190,13 +207,22 @@ def run_multi_source(sources, args, stagger_seconds):
     :type sources: list[str]
     :param args: parsed CLI arguments
     :type args: argparse.Namespace
-    :param stagger_seconds: delay between source start offsets
+    :param stagger_seconds: delay between source start offsets (coerced to int)
     :type stagger_seconds: int
     """
 
+    try:
+        stagger_value = int(stagger_seconds)
+    except (TypeError, ValueError):
+        print(
+            f"Invalid 'stagger_seconds' value '{stagger_seconds}' in configuration; defaulting to 0.",
+            file=sys.stderr,
+        )
+        stagger_value = 0
+
     threads = []
     workers = []
-    stagger_step = max(0, stagger_seconds)
+    stagger_step = max(0, stagger_value)
     for index, source in enumerate(sources):
         start_delay = stagger_step * index
         worker = create_source_worker(source, start_delay, args)

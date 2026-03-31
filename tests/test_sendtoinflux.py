@@ -1,6 +1,7 @@
-"""Unit tests for sendtoinflux (signal_handler, main)."""
+"""Unit tests for sendtoinflux (signal_handler, main, helper functions)."""
 
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
 import pytest
 import sendtoinflux
 
@@ -113,3 +114,42 @@ class TestMain:
             with pytest.raises(SystemExit):
                 sendtoinflux.main()
             mock_exit.assert_called_once_with(1)
+
+
+class TestHelpers:
+    """Tests for helper functions used by multi-source mode."""
+
+    def test_get_backoff_delay_caps_at_max(self):
+        """get_backoff_delay caps large failure counts at configured maximum."""
+        delay = sendtoinflux.get_backoff_delay(10_000, backoff_base_seconds=5, backoff_max_seconds=300)
+        assert delay == 300
+
+    def test_collect_source_data_uses_existing_handler(self):
+        """collect_source_data uses the supplied handler instead of reloading one."""
+        handler = MagicMock()
+        handler.get_data.return_value = {"x": 1}
+        handler.source_settings = {"interval": 123}
+        args = SimpleNamespace(print=False)
+
+        interval = sendtoinflux.collect_source_data("hue", args, handler)
+
+        assert interval == 123
+        handler.get_data.assert_called_once()
+        handler.send_data.assert_called_once()
+
+    def test_run_multi_source_coerces_invalid_stagger_to_zero(self):
+        """run_multi_source falls back to zero stagger when value is invalid."""
+        args = SimpleNamespace(print=False)
+        fake_thread = MagicMock()
+        fake_thread.is_alive.return_value = True
+
+        with (
+            patch("sendtoinflux.create_source_worker") as mock_create_source_worker,
+            patch("sendtoinflux.spawn_source_thread", return_value=fake_thread),
+            patch("sendtoinflux.time.sleep", side_effect=SystemExit(0)),
+        ):
+            with pytest.raises(SystemExit):
+                sendtoinflux.run_multi_source(["hue", "zappi"], args, "not-an-int")
+
+        mock_create_source_worker.assert_any_call("hue", 0, args)
+        mock_create_source_worker.assert_any_call("zappi", 0, args)

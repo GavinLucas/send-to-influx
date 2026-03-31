@@ -60,9 +60,10 @@ In multi-source mode, if a source fails, only that source is retried. Failed sou
 There are a few options that can be passed to the script and a couple of these can help you to debug and also to help you understand your data:
 
 - To run only one data source, use the 'source' option, e.g. `sendtoinflux.py --source zappi`.
-- To dump all the data from the Hue Bridge in order to see the names, etc., run `sendtoinflux.py --dump` 
-and it will output all the data returned as json.
-- To print the data rather than send it to InfluxDB, run `sendtoinflux.py --print` and it will output the
+- To dump all the data from the Hue Bridge in order to see the names, etc., run `sendtoinflux.py --source hue --dump`
+and it will output all the data returned as json. When `sources` is configured in `settings.yml`, `--dump` must be
+used together with `--source` so the script knows which source to dump.
+- To print the data rather than send it to InfluxDB, run `sendtoinflux.py --source hue --print` and it will output the
 parsed data structure as json.
 
 Configuration options for multi-source mode:
