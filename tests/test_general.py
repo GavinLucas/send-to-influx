@@ -94,6 +94,15 @@ class TestGetClass:
                 mock_zappi.assert_called_once_with("zappi")
                 assert result is mock_zappi.return_value
 
+    def test_get_class_returns_speedtest_for_lowercase(self, sample_settings):
+        """get_class('speedtest') returns Speedtest instance."""
+        with patch("toinflux.influx.load_settings") as mock_load_settings:
+            mock_load_settings.return_value = sample_settings
+            with patch("toinflux.speedtest.Speedtest") as mock_speedtest:
+                result = get_class("speedtest")
+                mock_speedtest.assert_called_once_with("speedtest")
+                assert result is mock_speedtest.return_value
+
     def test_get_class_unknown_source_exits(self):
         """get_class with unknown source exits with 1."""
         with pytest.raises(SystemExit):

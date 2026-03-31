@@ -1,5 +1,6 @@
 """Unit tests for toinflux.speedtest (Speedtest)."""
 
+from socket import gethostname
 from unittest.mock import MagicMock, patch
 import pytest
 from toinflux.speedtest import Speedtest
@@ -36,6 +37,7 @@ class TestSpeedtest:
                 mock_st.results.dict.assert_called_once()
                 assert result == st_payload
                 assert handler.data == st_payload
+                assert handler.influx_header == f"speedtest,host={gethostname().split('.')[0]} "
 
     def test_get_data_filters_to_configured_fields(self, sample_settings):
         """get_data keeps only configured fields that exist in speedtest result."""

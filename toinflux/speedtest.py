@@ -6,7 +6,7 @@ __license__ = "MIT License"
 __version__ = "1.0"
 
 import sys
-import socket
+from socket import gethostname
 import speedtest
 from toinflux.influx import DataHandler
 
@@ -46,6 +46,6 @@ class Speedtest(DataHandler):
             self.data = st_data
 
         # use the local hostname as the host tag
-        self.influx_header = f"speedtest,host={socket.gethostname().split('.')[0]} "
+        self.influx_header = f"speedtest,host={gethostname().split('.')[0]} "
 
         return self.data
