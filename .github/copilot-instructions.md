@@ -24,12 +24,14 @@ The project uses a plugin-like architecture where each data source is implemente
 #### Current Data Sources
 - **`toinflux/philipshue.py`**: Philips Hue Bridge integration
 - **`toinflux/myenergi.py`**: MyEnergi Zappi/Eddi/Harvi devices integration
+- **`toinflux/speedtest.py`**: Speedtest network performance integration
 
 ### Configuration (`settings.yml`)
 YAML-based configuration supporting multiple data sources:
 - **Hue**: Bridge connection, sensor mappings, temperature units
 - **MyEnergi**: API endpoints, authentication, device serials
 - **Zappi**: Field selection, collection intervals
+- **Speedtest**: Field selection, collection intervals
 - **InfluxDB**: Connection details, database settings
 
 ## Code Style & Standards
@@ -107,18 +109,19 @@ except requests.exceptions.RequestException as e:
 ## Dependencies
 
 ### Core Dependencies
-- `requests~=2.32.5`: HTTP requests for APIs and InfluxDB
-- `urllib3~=2.6.3`: HTTP client library used in `toinflux/general.py` to disable `InsecureRequestWarning` globally
-- `pyyaml~=6.0.3`: YAML configuration file parsing
+- `requests`: HTTP requests for APIs and InfluxDB
+- `urllib3`: HTTP client library used in `toinflux/general.py` to disable `InsecureRequestWarning` globally
+- `pyyaml`: YAML configuration file parsing
+- `speedtest-cli`: Speedtest library for collecting network perf data
 
 ### Development Dependencies
-- `black~=26.3.0`: Code formatting
-- `flake8~=7.3.0`: Linting with bugbear and black plugins
-- `flake8-bugbear~=25.11.29`: Additional linting rules
-- `flake8-black~=0.4.0`: Black integration for flake8
-- `pytest~=9.0.2`: Unit test framework
+- `black`: Code formatting
+- `flake8`: Linting with bugbear and black plugins
+- `flake8-bugbear`: Additional linting rules
+- `flake8-black`: Black integration for flake8
+- `pytest`: Unit test framework
 
-Install runtime requirements with `pip install -r requirements.txt`, or development requirements (which include runtime) with `pip install -r requirements-dev.txt`.
+Install runtime requirements with `.venv/bin/pip install -r requirements.txt`, or development requirements (which include runtime) with `.venv/bin/pip install -r requirements-dev.txt`.
 
 ## CLI Usage
 ```bash
@@ -131,7 +134,7 @@ python sendtoinflux.py --source zappi --dump
 # Continuous monitoring (console output)
 python sendtoinflux.py --source hue --print
 
-# Available sources: hue, zappi (and any other implemented sources)
+# Available sources: hue, zappi, speedtest (and any other implemented sources)
 ```
 
 ## Configuration Examples
@@ -165,6 +168,17 @@ zappi:
     - "vol"
     - "gen"
     - "grd"
+```
+
+### Speedtest settings
+```yaml
+speedtest:
+  db: "speedtest_db"
+  interval: 21600
+  fields:
+    - "download"
+    - "upload"
+    - "ping"
 ```
 
 ### InfluxDB Configuration
@@ -221,13 +235,14 @@ influx:
 ### Unit tests
 - **Framework**: pytest. Tests live under `tests/`.
 - **Coverage**: Write unit tests for new and modified code. Tests should cover public functions and classes; use mocks for `load_settings`, file I/O, and HTTP so tests run without real config or network.
-- **Running tests**: Install dev dependencies (`pip install -r requirements-dev.txt`) then run `pytest -v`. CI runs this on every push and pull request.
+- **Virtual environment requirement**: Always run Python tooling from the repo-local virtual environment (`.venv`). Do not rely on globally installed `python`, `pip`, or `pytest`.
+- **Running tests**: Install dev dependencies (`.venv/bin/pip install -r requirements-dev.txt`) then run `.venv/bin/pytest -v` (or `.venv/bin/python -m pytest -v`). CI runs this on every push and pull request.
 - **Adding tests**: When adding a new data source or changing behaviour, add or update tests in the appropriate `tests/test_*.py` module. Reuse fixtures from `tests/conftest.py` (e.g. `sample_settings`) where applicable.
 
 ## Development Workflow
 1. **Setup**: Copy `example_settings.yml` to `settings.yml` and configure
 2. **Development**: Use `--print` mode for testing without affecting InfluxDB
-3. **Unit tests**: Run `pytest -v` and add/update tests for your changes
-4. **Linting**: Run `flake8` to check code style
-5. **Formatting**: Run `black` to format code
+3. **Unit tests**: Run `.venv/bin/pytest -v` and add/update tests for your changes
+4. **Linting**: Run `.venv/bin/flake8` to check code style
+5. **Formatting**: Run `.venv/bin/black` to format code
 6. **Integration**: Test with actual devices and InfluxDB instance
