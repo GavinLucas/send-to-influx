@@ -46,6 +46,6 @@ class Speedtest(DataHandler):
             self.data = st_data
 
         # use the local hostname as the host tag
-        self.influx_header = f"speedtest,host={socket.gethostname().split(".")[0]} "
+        self.influx_header = f"speedtest,host={socket.gethostname().split('.')[0]} "
 
         return self.data
