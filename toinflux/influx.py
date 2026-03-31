@@ -34,7 +34,8 @@ class DataHandler:
         :return: None
         """
         # if the data is not provided, use the data from the class
-        data = data if data else self.data
+        if data is None:
+            data = self.data
 
         if not data or not isinstance(data, dict):
             print("No data to send to InfluxDB")

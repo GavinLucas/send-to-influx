@@ -39,7 +39,7 @@ This uses the speedtest-cli python library and will run download and upload test
 
 Speedtest-cli is installed as a requirement of this project so no additional download is required.
 
-Information about speedtest-cli is available on their project page: 
+Information about speedtest-cli is available on their project page:
 https://github.com/sivel/speedtest-cli
 
 Running the script

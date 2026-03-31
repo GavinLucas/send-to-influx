@@ -127,7 +127,7 @@ class TestFlattenDict:
         assert flatten_dict(data) == {"a": 1, "b": 2}
 
     def test_nested_dict_is_flattened_with_default_separator(self):
-        """flatten_dict flattens nested dictionaries using dot separator."""
+        """flatten_dict flattens nested dictionaries using the default separator."""
         data = {"a": {"b": {"c": 1}}, "d": 2}
         assert flatten_dict(data) == {"a_b_c": 1, "d": 2}
 
