@@ -65,6 +65,18 @@ zappi:
     - "newAppAvailable"
     - "newBootloaderAvailable"
 
+# Speedtest settings
+speedtest:
+  # The database to use
+  db: "speedtest_db"
+  # Interval in seconds between data collection
+  interval: 21600
+  # The fields to collect from the Speedtest results
+  fields:
+    - "download"
+    - "upload"
+    - "ping"
+
 # InfluxDB settings
 influx:
   # The URL of the InfluxDB server

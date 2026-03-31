@@ -33,8 +33,9 @@ def get_class(source):
     from toinflux.influx import DataHandler
     from toinflux.myenergi import MyEnergi, Zappi
     from toinflux.philipshue import Hue
+    from toinflux.speedtest import Speedtest
 
-    classes = {"DataHandler": DataHandler, "Hue": Hue, "MyEnergi": MyEnergi, "Zappi": Zappi}
+    classes = {"DataHandler": DataHandler, "Hue": Hue, "MyEnergi": MyEnergi, "Zappi": Zappi, "Speedtest": Speedtest}
 
     # Use a Capitalised name for the class name
     class_name = source.capitalize() if source.islower() else source

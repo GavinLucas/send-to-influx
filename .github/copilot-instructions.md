@@ -24,12 +24,14 @@ The project uses a plugin-like architecture where each data source is implemente
 #### Current Data Sources
 - **`toinflux/philipshue.py`**: Philips Hue Bridge integration
 - **`toinflux/myenergi.py`**: MyEnergi Zappi/Eddi/Harvi devices integration
+- **`toinflux/speedtest.py`**: Speedtest network performance integration
 
 ### Configuration (`settings.yml`)
 YAML-based configuration supporting multiple data sources:
 - **Hue**: Bridge connection, sensor mappings, temperature units
 - **MyEnergi**: API endpoints, authentication, device serials
 - **Zappi**: Field selection, collection intervals
+- **Speedtest**: Field selection, collection intervals
 - **InfluxDB**: Connection details, database settings
 
 ## Code Style & Standards
@@ -110,6 +112,7 @@ except requests.exceptions.RequestException as e:
 - `requests~=2.32.5`: HTTP requests for APIs and InfluxDB
 - `urllib3~=2.6.3`: HTTP client library used in `toinflux/general.py` to disable `InsecureRequestWarning` globally
 - `pyyaml~=6.0.3`: YAML configuration file parsing
+- `speedtest-cli~=2.1.3`: Speedtest library for collecting network perf data
 
 ### Development Dependencies
 - `black~=26.3.0`: Code formatting
@@ -131,7 +134,7 @@ python sendtoinflux.py --source zappi --dump
 # Continuous monitoring (console output)
 python sendtoinflux.py --source hue --print
 
-# Available sources: hue, zappi (and any other implemented sources)
+# Available sources: hue, zappi, speedtest (and any other implemented sources)
 ```
 
 ## Configuration Examples
@@ -165,6 +168,17 @@ zappi:
     - "vol"
     - "gen"
     - "grd"
+```
+
+### Speedtest settings
+```yaml
+speedtest:
+  db: "speedtest_db"
+  interval: 21600
+  fields:
+    - "download"
+    - "upload"
+    - "ping"
 ```
 
 ### InfluxDB Configuration

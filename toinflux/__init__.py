@@ -9,3 +9,4 @@ from .general import load_settings, get_class
 from .influx import DataHandler
 from .philipshue import Hue
 from .myenergi import MyEnergi, Zappi
+from .speedtest import Speedtest
