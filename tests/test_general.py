@@ -63,6 +63,40 @@ class TestLoadSettings:
         finally:
             Path(path).unlink(missing_ok=True)
 
+    def test_loads_from_yaml_extension(self, sample_settings):
+        """load_settings reads a file with the .yaml extension."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(sample_settings, f)
+            path = f.name
+        try:
+            result = load_settings(settings_file=path)
+            assert result == sample_settings
+        finally:
+            Path(path).unlink(missing_ok=True)
+
+    def test_falls_back_to_yml_when_yaml_missing(self, sample_settings):
+        """load_settings falls back to .yml when the .yaml file does not exist."""
+        with tempfile.TemporaryDirectory() as tmp:
+            yml_path = os.path.join(tmp, "settings.yml")
+            yaml_path = os.path.join(tmp, "settings.yaml")
+            with open(yml_path, "w", encoding="utf8") as f:
+                yaml.dump(sample_settings, f)
+            result = load_settings(settings_file=yaml_path)
+            assert result == sample_settings
+
+    def test_no_fallback_when_yaml_exists(self, sample_settings):
+        """load_settings uses .yaml and does not fall back when .yaml exists."""
+        different = {"key": "from_yaml"}
+        with tempfile.TemporaryDirectory() as tmp:
+            yml_path = os.path.join(tmp, "settings.yml")
+            yaml_path = os.path.join(tmp, "settings.yaml")
+            with open(yml_path, "w", encoding="utf8") as f:
+                yaml.dump(sample_settings, f)
+            with open(yaml_path, "w", encoding="utf8") as f:
+                yaml.dump(different, f)
+            result = load_settings(settings_file=yaml_path)
+            assert result == different
+
 
 class TestGetClass:
     """Tests for get_class function."""

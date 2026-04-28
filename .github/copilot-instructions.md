@@ -9,7 +9,7 @@ send-to-influx is a Python application that collects data from various smart hom
 - **Entry Point**: Command-line script with signal handling for graceful shutdown
 - **Source Selection**:
   - `--source <name>` runs a single source
-  - if `--source` is omitted, starts one worker per entry in `sources` from `settings.yml`
+  - if `--source` is omitted, starts one worker per entry in `sources` from `settings.yaml`
 - **CLI Modes**: 
   - `--dump`: One-time data export (JSON format)
   - `--print`: Continuous monitoring with JSON output to console
@@ -33,7 +33,7 @@ The project uses a plugin-like architecture where each data source is implemente
 - **`toinflux/myenergi.py`**: MyEnergi Zappi/Eddi/Harvi devices integration
 - **`toinflux/speedtest.py`**: Speedtest network performance integration
 
-### Configuration (`settings.yml`)
+### Configuration (`settings.yaml`)
 YAML-based configuration supporting multiple data sources:
 - **Orchestration**:
   - `sources`: list of sources to run in parallel when `--source` is omitted
@@ -58,7 +58,7 @@ YAML-based configuration supporting multiple data sources:
 ### Error Handling
 - **Exit Codes**:
   - `0`: Normal exit
-  - `1`: Configuration errors (missing/invalid settings.yml)
+  - `1`: Configuration errors (missing/invalid settings.yaml)
   - `2`: Connection errors (API endpoints, InfluxDB)
 - **Error Messages**: Descriptive messages printed to stderr
 - **Network Handling**: Proper timeout handling and connection failure management
@@ -72,11 +72,11 @@ YAML-based configuration supporting multiple data sources:
 3. **Required Methods**:
    - `get_data()`: Return processed data as dictionary
    - `send_data(data)`: Send data to InfluxDB (inherited from base class)
-4. **Configuration**: Add corresponding section to `settings.yml`
+4. **Configuration**: Add corresponding section to `settings.yaml`
 5. **Documentation**: Update docstrings and comments
 
 ### Configuration Schema
-Each data source should have its own section in `settings.yml`:
+Each data source should have its own section in `settings.yaml`:
 ```yaml
 newsource:
   # API endpoint
@@ -137,7 +137,7 @@ Install runtime requirements with `.venv/bin/pip install -r requirements.txt`, o
 
 ## CLI Usage
 ```bash
-# Normal operation for all configured sources in settings.yml
+# Normal operation for all configured sources in settings.yaml
 python sendtoinflux.py
 
 # Normal operation for a single source
@@ -150,7 +150,7 @@ python sendtoinflux.py --source zappi --dump
 python sendtoinflux.py --source hue --print
 
 # Available sources: hue, zappi, speedtest (and any other implemented sources)
-# Multi-source mode uses the settings.yml `sources` list.
+# Multi-source mode uses the settings.yaml `sources` list.
 ```
 
 ## Configuration Examples
@@ -232,7 +232,7 @@ influx:
 - **Error Recovery**: Graceful handling of temporary network issues
 
 ## Security Notes
-- **Credentials**: Store sensitive data in `settings.yml` with appropriate file permissions
+- **Credentials**: Store sensitive data in `settings.yaml` with appropriate file permissions
 - **HTTPS**: Use HTTPS for all API connections in production
 - **Validation**: Validate all input data before processing
 - **Logging**: Avoid logging sensitive information
@@ -243,7 +243,7 @@ influx:
 ### Debugging Issues
 1. **Configuration**: Use `--dump` mode to inspect raw API data
 2. **Processing**: Use `--print` mode to see processed data without sending to InfluxDB
-3. **Validation**: Check `settings.yml` syntax and values
+3. **Validation**: Check `settings.yaml` syntax and values
 4. **Connectivity**: Verify network connectivity to APIs and InfluxDB
 
 ### Adding New Sensor Types
@@ -267,7 +267,7 @@ influx:
 - **Adding tests**: When adding a new data source or changing behaviour, add or update tests in the appropriate `tests/test_*.py` module. Reuse fixtures from `tests/conftest.py` (e.g. `sample_settings`) where applicable.
 
 ## Development Workflow
-1. **Setup**: Copy `example_settings.yml` to `settings.yml` and configure
+1. **Setup**: Copy `example_settings.yaml` to `settings.yaml` and configure
 2. **Development**: Use `--print` mode for testing without affecting InfluxDB
 3. **Unit tests**: Run `.venv/bin/pytest -v` and add/update tests for your changes
 4. **Linting**: Run `.venv/bin/flake8` to check code style

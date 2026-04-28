@@ -76,8 +76,12 @@ def get_class(source):
     return my_class
 
 
-def load_settings(settings_file="settings.yml"):
+def load_settings(settings_file="settings.yaml"):
     """Load settings from a YAML file and return as a dictionary.
+
+    When ``settings_file`` is the default (``settings.yaml``) and that file does
+    not exist, the function falls back to ``settings.yml`` for backwards
+    compatibility.
 
     :param settings_file: path to the settings file (absolute, or relative to the project root)
     :type settings_file: str
@@ -87,19 +91,24 @@ def load_settings(settings_file="settings.yml"):
     base_dir = os.path.abspath(os.path.dirname(__file__) + "/..")
     settings_path = os.path.join(base_dir, settings_file)
 
+    if not os.path.exists(settings_path) and settings_path.endswith(".yaml"):
+        fallback_path = settings_path[:-5] + ".yml"
+        if os.path.exists(fallback_path):
+            settings_path = fallback_path
+
     try:
         with open(settings_path, encoding="utf8") as f:
             settings = yaml.safe_load(f)
 
         if not isinstance(settings, dict) or not settings:
-            print(f"Invalid or empty configuration in {settings_path}. Please check settings.yml.")
+            print(f"Invalid or empty configuration in {settings_path}. Please check settings.yaml.")
             sys.exit(1)
 
         return settings
     except FileNotFoundError:
         print(f"{settings_path} not found.")
-        print("Make sure you copy settings.yml.example to settings.yml and edit it.")
+        print("Make sure you copy example_settings.yaml to settings.yaml and edit it.")
         sys.exit(1)
     except yaml.YAMLError as e:
-        print(f"Error in settings.yml - {e}")
+        print(f"Error in settings.yaml - {e}")
         sys.exit(1)

@@ -4,6 +4,7 @@
 !/.github/
 !.cursor/
 !.vscode/
+!.claude/
 
 # Python
 __pycache__/
@@ -42,4 +43,5 @@ Thumbs.db
 
 # Project
 /settings.json
+/settings.yaml
 /settings.yml

@@ -44,8 +44,8 @@ https://github.com/sivel/speedtest-cli
 
 Running the script
 ------------------
-- copy example_settings.yml to settings.yml
-  - Change the permissions of the file, e.g. `chmod 600 settings.yml`, so that it's not readable 
+- copy example_settings.yaml to settings.yaml
+  - Change the permissions of the file, e.g. `chmod 600 settings.yaml`, so that it's not readable 
   by other users
   - Fill in the values for your devices and InfluxDB
 - Install runtime requirements with `pip install -r requirements.txt`
@@ -61,7 +61,7 @@ There are a few options that can be passed to the script and a couple of these c
 
 - To run only one data source, use the 'source' option, e.g. `sendtoinflux.py --source zappi`.
 - To dump all the data from the Hue Bridge in order to see the names, etc., run `sendtoinflux.py --source hue --dump`
-and it will output all the data returned as json. When `sources` is configured in `settings.yml`, `--dump` must be
+and it will output all the data returned as json. When `sources` is configured in `settings.yaml`, `--dump` must be
 used together with `--source` so the script knows which source to dump.
 - To print the data rather than send it to InfluxDB, run `sendtoinflux.py --source hue --print` and it will output the
 parsed data structure as json.
@@ -116,7 +116,7 @@ Unit tests for all the functions and classes are located in the 'tests' director
 
 So to add a new device, if it's for an existing manufacturer, e.g. adding support for a MyEnergi Eddi you can add a new sub-class to an existing file, otherwise add a new file with a class which is a child of DataHandler and exposes a get_data() method.
 
-Don't forget to add imports for any new data collector classes to get_class() in general.py and \_\_init__.py, update the README.md and also add any required settings to example_settings.yml
+Don't forget to add imports for any new data collector classes to get_class() in general.py and \_\_init__.py, update the README.md and also add any required settings to example_settings.yaml
 
 Also make sure you add unit tests for any functions or classes that you add.  Check that the existing tests still pass and check your linting before pushing changes to avoid CI failures.
 
