@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>send-to-influx APT repository (frozen - project has moved)</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; line-height: 1.5; }
+  code, pre { background: #f0f0f0; padding: 0.15em 0.4em; border-radius: 3px; }
+  pre { padding: 0.75em 1em; overflow-x: auto; }
+  a { color: #0645ad; }
+  .notice { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 4px; padding: 0.75em 1em; }
+</style>
+</head>
+<body>
+<h1>send-to-influx APT repository (frozen)</h1>
+<p class="notice">
+  <strong>This project has moved to <a href="https://github.com/L337-org/send-to-influx">L337-org/send-to-influx</a>.</strong>
+  This URL serves a frozen snapshot (last version: 4.2) so existing installs keep working - it will
+  never receive updates. The live APT repository is at <a href="https://apt.l337.org/">apt.l337.org</a>.
+</p>
+<p>To switch an existing install to the new URL:</p>
+<pre>sudo sed -i 's|https://gavinlucas.github.io/send-to-influx/|https://apt.l337.org/|' /etc/apt/sources.list.d/send-to-influx.list
+curl -fsSL https://apt.l337.org/send-to-influx.gpg | sudo tee /usr/share/keyrings/send-to-influx.gpg >/dev/null
+sudo apt update</pre>
+<p>
+  For a fresh install, follow the
+  <a href="https://github.com/L337-org/send-to-influx#installing-from-the-apt-repo">README at the new home</a>.
+</p>
+</body>
+</html>

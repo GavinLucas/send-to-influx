@@ -1,0 +1,17 @@
+Package: send-to-influx
+Version: 4.2
+Architecture: all
+Maintainer: Gavin Lucas
+Depends: debconf (>= 0.5), python3 (>= 3.10), python3 (<< 3.31)
+Filename: ./send-to-influx_4.2_all.deb
+Size: 2988088
+MD5sum: 87c263faf856c809b2405a1f2d9eb7c1
+SHA1: 14516ee7b211b0acd20780d938a3d09592e86eea
+SHA256: ca2460544fabfa53567ffac677a2906ada8fd83bc2e8689426b605ca60e96a7b
+Section: utils
+Priority: optional
+Description: Collects data from smart home / energy devices and writes it to InfluxDB
+ send-to-influx polls Hue, MyEnergi, Octopus, Open-Meteo, National Grid Carbon
+ Intensity and Speedtest sources and writes the results to InfluxDB using the
+ line protocol, for visualisation in Grafana.
+
